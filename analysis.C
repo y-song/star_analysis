@@ -4,15 +4,14 @@ void analysis(){
 	TH2::SetDefaultSumw2();
 
 	TFile * f_out = new TFile("analysis.root", "recreate");
-	TH2D * h1 = new TH2D("dpT/pT vs pT,smeared 1", "For events with the same number of smeared and true jets;pT,smeared [GeV];dpT/pT", 50, 0, 5, 50, -2, 2);
-	TH2D * h2 = new TH2D("dpT/pT vs pT,smeared 2", "For events with the same number of smeared and true jets, dR < 0.1;pT,smeared [GeV];dpT/pT", 50, 0 ,5, 50, -2, 2);
-	TH2D * h3 = new TH2D("dpT/pT vs pT,smeared 3", "Originally have different numbers of smeared and true jets. for each true jet if there exists only one smeared jet within dR < 0.1 then put it in this plot;pT,smeared [GeV];dpT/pT", 50, 0, 5, 50, -2, 2);
-	TH1D * h_eta = new TH1D("deta", "For events with the same number of smeared and true jets;d#eta;count", 50, -0.3, 0.3);
-	TH1D * h_phi = new TH1D("dphi", "For events with the same number of smeared and true jets;d#phi;count", 50, -0.3, 0.3);
-	TH1D * h_R = new TH1D("dR", "For events with the same number of smeared and true jets;dR;count", 50, 0, 0.5);
-	//TH1D * h1_phi_n = new TH1D("dphi", "originally had more smeared jets than true jets, now require |deta| < 0.15 and have the same number;#phi;count", 50, -0.3, 0.3);	
-
-	TFile * F = new TFile("$HOME/output/main.root");
+	TH2D * h1 = new TH2D("dpT/pT vs pT,smeared 1", "For events with the same number of smeared and true jets;pT,smeared [GeV];dpT/pT", 50, 0, 5, 50, -1, 1);
+	TH2D * h2 = new TH2D("dpT/pT vs pT,smeared 2", "For events with the same number of smeared and true jets, dR < 0.02;pT,smeared [GeV];dpT/pT", 50, 0 ,5, 50, -1, 1);
+	TH2D * h3 = new TH2D("dpT/pT vs pT,smeared 3", "Originally have different numbers of smeared and true jets. for each true jet if there exists only one smeared jet within dR < 0.02 then put it in this plot;pT,smeared [GeV];dpT/pT", 50, 0, 5, 50, -1, 1);
+	TH1D * h_eta = new TH1D("deta", "For events with the same number of smeared and true jets;d#eta;count", 50, -0.2, 0.2);
+	TH1D * h_phi = new TH1D("dphi", "For events with the same number of smeared and true jets;d#phi;count", 50, -0.2, 0.2);
+	TH1D * h_R = new TH1D("dR", "For events with the same number of smeared and true jets;dR;count", 50, 0, 0.4);
+	 
+	TFile * F = new TFile("$HOME/output/ppsmear.root");
 	TTree * T = (TTree*) F -> Get("Tree");
 	
 	int evid, njet, njet_s;
@@ -45,7 +44,7 @@ void analysis(){
 				h_R -> Fill(dR);
 				h1 -> Fill(pt_s[jet], y);
 			
-				if (dR < 0.1){
+				if (dR < 0.02){
 					h2 -> Fill(pt_s[jet], y);
 				}
 			}
@@ -54,11 +53,11 @@ void analysis(){
 			for (int jet = 0; jet < njet; jet++){
 				int n_matched_smeared_jet = 0;
 				int smeared_jet_index = 0;
-				for (int jet_s = 0; jet < njet_s; jet++){
-					float deta = eta_s[jet]-eta[jet];
-					float dphi = phi_s[jet]-phi[jet];
+				for (int jet_s = 0; jet_s < njet_s; jet_s++){
+					float deta = eta_s[jet_s]-eta[jet];
+					float dphi = phi_s[jet_s]-phi[jet];
 					float dR = sqrt(pow(deta, 2) + pow(dphi, 2));
-					if (dR < 0.1){
+					if (dR < 0.02){
 						n_matched_smeared_jet += 1;
 						smeared_jet_index = jet_s;
 					}
