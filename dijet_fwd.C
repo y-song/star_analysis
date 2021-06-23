@@ -4,18 +4,17 @@ void dijet_fwd(){
 	TH1::SetDefaultSumw2();
 	TH2::SetDefaultSumw2();
 
-	TFile * f_out = new TFile("dijet.root", "recreate");
-	TH1D * h1 = new TH1D("x1 from jets", "x1 from jets;x;count", 40, 0, 0.6);
-	TH1D * h2 = new TH1D("x2 from jets", "x2 from jets;x;count", 40, 0, 0.1);
-	TH1D * h3 = new TH1D("x1 from partons", "x1 from partons;x;count", 40, 0, 0.6);
-	TH1D * h4 = new TH1D("x2 from partons", "x2 from partons;x;count", 40, 0, 0.1);
+	TH1D * h1 = new TH1D("x1 calculated from jets", "x1 calculated from jets;x;count", 40, 0, 0.6);
+	TH1D * h2 = new TH1D("x2 calculated from jets", "x2 calculated from jets;x;count", 40, 0, 0.1);
+	TH1D * h3 = new TH1D("x1 from pythia info", "x1 from pythia info;x;count", 40, 0, 0.6);
+	TH1D * h4 = new TH1D("x2 from pythia info", "x2 from pythia info;x;count", 40, 0, 0.1);
 	//TH1D * h5 = new TH1D("dijet pairs per event", "dijet pairs per event", 5, 0, 5);
  
-	TFile * F = new TFile("$HOME/output/pthat10.root");
+	TFile * F = new TFile("$HOME/output/trash/pthat10.root");
 	TTree * T = (TTree*) F -> Get("Tree");
 	
 	int njet;
-	float x1_jet, x2_jet, x1_parton, x2_parton, p[100], pt[100], eta[100], phi[100];
+	float x1_jet, x2_jet, x1_parton, x2_parton, p[100], pt[100], eta[100], phi[100], e[100];
 	int a = 0; // number of forward jets
 	int b = 0; // number of forward jets matched with a dijet
 
@@ -26,6 +25,7 @@ void dijet_fwd(){
 	T -> SetBranchAddress("p_jet", p);
 	T -> SetBranchAddress("eta_jet", eta);
 	T -> SetBranchAddress("phi_jet", phi);
+	T -> SetBranchAddress("e_jet", e);
 	
 	int nEvent = T -> GetEntries();
 
@@ -35,12 +35,17 @@ void dijet_fwd(){
 
 		if (njet > 100 || njet == 0)	continue;
 		if (pt[0] < 5)	continue;
-		
+		TLorentzVector v0;
+		v0.SetPtEtaPhiE(pt[0], eta[0], phi[0], e[0]);
+
 		a += 1;
 			
 		for (int j = 1; j < njet; j++){
+
+			TLorentzVector v;
+			v.SetPtEtaPhiE(pt[j], eta[j], phi[j], e[j]);
 			
-			float dphi = abs(phi[0] - phi[j]);
+			float dphi = abs(v0.DeltaPhi(v));
 			float deta = abs(eta[0] - eta[j]);
 			float dpt = abs(pt[0] - pt[j]);
 
